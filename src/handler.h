@@ -20,18 +20,15 @@ private:
     struct TPIDContext {
       // last known PCR
       uint64_t pcr = 0;
-      // last known TS packet number
-      uint64_t packetNumber = 0;
-      // last known PES stream id
+      // number of packets since last PCR packet
+      uint64_t packetsCounter = 0;
+      // last known PES stream id or 0x0
       uint8_t pesStreamId = 0;
       // bitrate calculated from PCR above
       double bitrate = 0.0;
     };
 
-    std::map<ts::PID, TPIDContext> _pidCtxMap; 
-
-    // counts the total number of packets
-    uint64_t _allPacketsCounter = 0;
+    std::map<ts::PID, TPIDContext> _pidContextMap; 
 
     // counts the total number of packets containing Video
     uint64_t _vidPacketsCounter = 0;

@@ -28,10 +28,10 @@ void Handler::handlePluginEvent(const ts::PluginEventContext& context)
 
 void Handler::handlePacket(const ts::TSPacket& packet)
 {
-    _allPacketsCounter++;
-
     auto pid = packet.getPID();
-    auto& pidCtx =_pidCtxMap[ pid ];
+    auto& pidCtx = _pidContextMap[ pid ];
+
+    pidCtx.packetsCounter++;
 
     // Detect PES stream
     // https://en.wikipedia.org/wiki/Packetized_elementary_stream
@@ -39,7 +39,7 @@ void Handler::handlePacket(const ts::TSPacket& packet)
       pidCtx.pesStreamId = packet.getPayload()[3];
     }
 
-    // Count video packets (stream-id range 0xE0-0xEF)
+    // Count video packets (PES stream-id is in range 0xE0-0xEF)
     if ((pidCtx.pesStreamId & 0xe0) == 0xe0) {
         _vidPacketsCounter++;
     }
@@ -48,18 +48,17 @@ void Handler::handlePacket(const ts::TSPacket& packet)
         _pcrPacketsCounter++;
     }
 
+    // Recalculate bitrate
     if ( packet.hasPCR() ) { 
-        // recalculate bitrate
         auto pcr = packet.getPCR();
-        double deltaPCR = pcr - pidCtx.pcr;
-        // The first 33 bits are based on a 90 kHz clock. The last 9 bits are
-        // based on a 27 MHz clock. https://en.wikipedia.org/wiki/MPEG_transport_stream#PCR
-        double deltaTime= deltaPCR / 27.e6;// 9.e4;
-        double deltaPkts= _allPacketsCounter - pidCtx.packetNumber;
-        double bitrate  = deltaPkts * ts::PKT_SIZE_BITS / deltaTime;
+        // TSDuck return PCR based on a 27MHz clock
+        // https://github.com/tsduck/tsduck/blob/master/src/libtsduck/dtv/transport/tsTSPacket.cpp#L422
+        double deltaTime = (pcr - pidCtx.pcr) / 27.e6;
+        double deltaBits = pidCtx.packetsCounter * ts::PKT_SIZE_BITS;
+        double bitrate   = deltaBits / deltaTime;
 
         pidCtx.pcr = pcr;
-        pidCtx.packetNumber = _allPacketsCounter;
+        pidCtx.packetsCounter = 0;
         pidCtx.bitrate = bitrate;
     }
 
@@ -75,16 +74,16 @@ void Handler::printStatus() {
     // clear terminal
     _report.info(u"\x1B[2J\x1B[H");
 
-    _report.info(u"video packets: %d, pcr packets: %d", {
+    _report.info(u"Video packets: %d, PCR packets: %d", {
         _vidPacketsCounter, _pcrPacketsCounter
     });
 
-    for (auto const& item : _pidCtxMap) {
-        // don't show PIDs with unknown bitrate
+    for (auto const& item : _pidContextMap) {
+        // don't print items with unknown bitrate
         if (item.second.bitrate == 0.0)
             continue;
-        _report.info(u"pid: 0x%x pesStreamId: 0x%x, bitrate: %.3f MBits/sec", {
-            item.first, item.second.pesStreamId, item.second.bitrate / 1.e6
+        _report.info(u"pid: %d pesStreamId: 0x%x, bitrate: %.3f kb/s", {
+            item.first, item.second.pesStreamId, item.second.bitrate / 1000
         });
     }
 }

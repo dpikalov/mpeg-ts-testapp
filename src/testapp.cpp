@@ -24,7 +24,7 @@ int TestApp(int argc, char* argv[])
     // Input plugin. Here, read an IP multicast stream.
     opt.input = {u"ip", { kInputStreamIpPort }};
 
-    // Output plugin.
+    // Output plugin. Direct memory output to an application
     opt.output = {u"memory", {}};
 
     // Start the TS processing.
