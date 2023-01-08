@@ -22,3 +22,5 @@ tsp -v -I http https://tsduck.io/streams/italy-sardinia-dttv/mux1rai.ts -O ip 23
 ## VLC test
 
 Open stream ```udp://@239.0.0.1:1234```
+
+Check ```Tools > Media information > Statistics```
