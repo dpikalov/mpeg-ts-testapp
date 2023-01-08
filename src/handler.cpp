@@ -74,15 +74,8 @@ void Handler::printStatus() {
     // clear terminal
     _report.info(u"\x1B[2J\x1B[H");
 
-    // get total bitrate
-    double totalBitrate = 0;
-    for (auto const& item : _pidContextMap) {
-        totalBitrate += item.second.bitrate;
-    }
-
-    _report.info(u"Video packets: %d", { _vidPacketsCounter });
-    _report.info(u"PCR packets  : %d", { _pcrPacketsCounter });
-    _report.info(u"Total bitrate: %.3f kb/s", { totalBitrate / 1000 });
+    _report.info(u"Total Video packets: %d", { _vidPacketsCounter });
+    _report.info(u"Total PCR packets  : %d", { _pcrPacketsCounter });
 
     for (auto const& item : _pidContextMap) {
         // don't print items with unknown bitrate
