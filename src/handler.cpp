@@ -82,7 +82,7 @@ void Handler::printStatus() {
 
     _report.info(u"Video packets: %d", { _vidPacketsCounter });
     _report.info(u"PCR packets  : %d", { _pcrPacketsCounter });
-    _report.info(u"Total bitrate: %.3f", { totalBitrate / 1000 });
+    _report.info(u"Total bitrate: %.3f kb/s", { totalBitrate / 1000 });
 
     for (auto const& item : _pidContextMap) {
         // don't print items with unknown bitrate
