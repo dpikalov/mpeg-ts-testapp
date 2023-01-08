@@ -20,8 +20,8 @@ private:
     struct TPIDContext {
       // last known PCR
       uint64_t pcr = 0;
-      // number of packets since last PCR packet
-      uint64_t packetsCounter = 0;
+      // number of packet of last PCR
+      uint64_t pcrPacketNumber = 0;
       // last known PES stream id or 0x0
       uint8_t pesStreamId = 0;
       // bitrate calculated from PCR above
@@ -35,4 +35,7 @@ private:
 
     // counts the number of packets containing PCR
     uint64_t _pcrPacketsCounter = 0;
+
+    //
+    uint64_t _allPacketsCounter = 0;
 };
