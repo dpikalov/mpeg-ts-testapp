@@ -1,6 +1,6 @@
 # The TSDuck development package must have been installed.
 
-CXXFLAGS += $(shell tsconfig --cflags)
+CXXFLAGS += $(shell tsconfig --cflags) -DTS_NO_VATEK
 LDLIBS += $(shell tsconfig --libs)
 
 OBJFILES = handler.o testapp.o
